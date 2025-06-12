@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+// import { useRouter } from 'next/navigation'; // REMOVED: No longer used for redirection
 
 // --- Definiciones de Tipos ---
 interface GameObject {
@@ -46,6 +47,7 @@ const imagePaths = {
   gold_mine: '/oro.jpg',
   tree: '/arbol.jpg',
   berries: '/berries.jpg',
+  background: '/background.jpg',
 };
 
 export default function AgeOfEmpiresCaptcha() {
@@ -53,6 +55,7 @@ export default function AgeOfEmpiresCaptcha() {
   const [validated, setValidated] = useState<boolean>(false);
   const [timeoutExpired, setTimeoutExpired] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<number>(CAPTCHA_INITIAL_TIME);
+  // const router = useRouter(); // REMOVED: No longer used for redirection
 
   // Estados del juego
   const [goldCollected, setGoldCollected] = useState<number>(0);
@@ -65,6 +68,7 @@ export default function AgeOfEmpiresCaptcha() {
   const [showSuccessAnimation, setShowSuccessAnimation] = useState<boolean>(false);
 
   // --- Definiciones de Objetos del Mapa ---
+  // Moved these constants inside the component, they are fine here but need to be in useEffect dependencies
   const townCenterData: GameObject = {
     id: 'tc', x: 50, y: 50, width: TOWN_CENTER_SIZE, height: TOWN_CENTER_SIZE, type: 'town_center'
   };
@@ -90,9 +94,9 @@ export default function AgeOfEmpiresCaptcha() {
         img.crossOrigin = 'anonymous';
         img.src = src;
         img.onload = () => resolve(img);
-        img.onerror = (e) => {
-          console.error(`Error al cargar la imagen local: ${src}`, e);
-          reject(e);
+        img.onerror = (error) => { // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          console.error(`Error al cargar la imagen local: ${src}`, error);
+          reject(error);
         };
       });
     };
@@ -105,14 +109,18 @@ export default function AgeOfEmpiresCaptcha() {
         if (imagePaths.gold_mine) loaded.gold_mine = await loadImage(imagePaths.gold_mine);
         if (imagePaths.tree) loaded.tree = await loadImage(imagePaths.tree);
         if (imagePaths.berries) loaded.berries = await loadImage(imagePaths.berries);
+        if (imagePaths.background) loaded.background = await loadImage(imagePaths.background);
 
         setImages(loaded);
         setAssetsLoaded(true);
+      } catch (error) { // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        setMessages(prev => [...prev, 'Error al cargar los assets. Revisa los nombres de archivo y la carpeta `public`.']);
+        setAssetsLoaded(false);
       }
     };
 
     loadAllImages();
-  }, []);
+  }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -339,7 +347,23 @@ export default function AgeOfEmpiresCaptcha() {
         clearTimeout(timeoutId);
       };
     }
-  }, [validated, timeoutExpired, villager, selectedUnitId, goldCollected, woodCollected, assetsLoaded, images]);
+  }, [
+    validated,
+    timeoutExpired,
+    villager,
+    selectedUnitId,
+    goldCollected,
+    woodCollected,
+    assetsLoaded,
+    images,
+    berriesData, // Added to dependency array
+    goldMineData, // Added to dependency array
+    mapElements,  // Added to dependency array
+    townCenterData, // Added to dependency array
+    treeData // Added to dependency array
+  ]);
+
+  // Removed redirection useEffect as it's no longer needed
 
   // Efecto para resetear el juego
   const resetGame = () => {
@@ -351,13 +375,14 @@ export default function AgeOfEmpiresCaptcha() {
     setVillager(null);
     setSelectedUnitId(null);
     setMessages(['Saca un aldeano del Centro Urbano.']);
+    setShowSuccessAnimation(false); // Also hide animation on reset
   };
 
   return (
     <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-      <h1>🏰 CAPTCHA: Not Mini Age of Empires</h1>
+      <h1>🏰 CAPTCHA: Mini Age of Empires</h1>
       <p>
-        **Objetivo:** Sacá un aldeano del Centro Urbano (TC) y haz que recolecte <b style={{color: 'gold'}}>1 de oro</b> de la mina y <b style={{color: 'green'}}>1 de madera</b> de un árbol. ¡Luego regresa al TC!
+        **Objetivo:** Saca un aldeano del Centro Urbano (TC) y haz que recolecte <b style={{color: 'gold'}}>1 de oro</b> de la mina y <b style={{color: 'green'}}>1 de madera</b> de un árbol. ¡Luego regresa al TC!
         {!assetsLoaded && <span style={{ color: 'orange', display: 'block', marginTop: '10px' }}>Cargando assets del juego...</span>}
         {timeLeft > 0 && !validated && !timeoutExpired && assetsLoaded && (
           <span style={{ marginLeft: '10px', fontWeight: 'bold', color: timeLeft <= 10 ? 'red' : 'inherit' }}>
@@ -429,4 +454,4 @@ export default function AgeOfEmpiresCaptcha() {
       `}</style>
     </div>
   );
-}	
+}
