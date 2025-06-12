@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 // --- Definiciones de Tipos ---
 interface GameObject {
@@ -54,7 +53,6 @@ export default function AgeOfEmpiresCaptcha() {
   const [validated, setValidated] = useState<boolean>(false);
   const [timeoutExpired, setTimeoutExpired] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<number>(CAPTCHA_INITIAL_TIME);
-  const router = useRouter(); // Aunque no lo usemos para redirigir, puede que lo tengas en otro lado
 
   // Estados del juego
   const [goldCollected, setGoldCollected] = useState<number>(0);
@@ -110,9 +108,6 @@ export default function AgeOfEmpiresCaptcha() {
 
         setImages(loaded);
         setAssetsLoaded(true);
-      } catch (error) {
-        setMessages(prev => [...prev, 'Error al cargar los assets. Revisa los nombres de archivo y la carpeta `public`.']);
-        setAssetsLoaded(false);
       }
     };
 
