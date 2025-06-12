@@ -107,7 +107,6 @@ export default function AgeOfEmpiresCaptcha() {
     };
 
     const loadAllImages = async () => {
-      try {
         const loaded: LoadedImages = {};
         if (imagePaths.town_center) loaded.town_center = await loadImage(imagePaths.town_center);
         if (imagePaths.villager) loaded.villager = await loadImage(imagePaths.villager);
@@ -118,7 +117,6 @@ export default function AgeOfEmpiresCaptcha() {
 
         setImages(loaded);
         setAssetsLoaded(true);
-      }
     };
 
     loadAllImages();
