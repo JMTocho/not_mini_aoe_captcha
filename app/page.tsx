@@ -220,10 +220,15 @@ export default function AgeOfEmpiresCaptcha() {
 
       if (validated || timeoutExpired) return;
 
-      if (villager && villager.isMoving && villager.targetX !== null && villager.targetY !== null) {
-        const dx = villager.targetX - villager.x;
-        const dy = villager.targetY - villager.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+      if (
+  villager &&
+  villager.isMoving &&
+  villager.targetX != null && // esto cubre null y undefined
+  villager.targetY != null
+) {
+  const dx = villager.targetX - villager.x;
+  const dy = villager.targetY - villager.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < VILLAGER_SPEED) {
           setVillager(prev => prev ? { ...prev, x: prev.targetX!, y: prev.targetY!, isMoving: false, targetX: null, targetY: null } : null);
