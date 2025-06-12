@@ -67,6 +67,11 @@ export default function AgeOfEmpiresCaptcha() {
   const [assetsLoaded, setAssetsLoaded] = useState<boolean>(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState<boolean>(false);
 
+  const [particles, setParticles] = useState<
+  { x: number; y: number; dx: number; dy: number; size: number; alpha: number }[]
+>([]);
+
+
   // --- Definiciones de Objetos del Mapa ---
   // Moved these constants inside the component, they are fine here but need to be in useEffect dependencies
   const townCenterData: GameObject = {
@@ -122,6 +127,24 @@ export default function AgeOfEmpiresCaptcha() {
     loadAllImages();
   }, []); // Empty dependency array means this runs once on mount
 
+
+  const generateParticles = (count = 20) => {
+  const canvas = canvasRef.current;
+  if (!canvas) return;
+
+  const newParticles = Array.from({ length: count }).map(() => ({
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    dx: (Math.random() - 0.5) * 2,
+    dy: (Math.random() - 0.5) * 2,
+    size: Math.random() * 2 + 1,
+    alpha: 1,
+  }));
+
+  setParticles(newParticles);
+};
+
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !assetsLoaded) return;
@@ -159,6 +182,17 @@ export default function AgeOfEmpiresCaptcha() {
       }
     };
 
+    if (showSuccessAnimation) {
+  particles.forEach(p => {
+    ctx.globalAlpha = p.alpha;
+    ctx.fillStyle = 'gold';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  });
+}
+
     const drawScene = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -183,6 +217,7 @@ export default function AgeOfEmpiresCaptcha() {
     const updateGame = () => {
       if (goldCollected >= 1 && woodCollected >= 1 && !validated) {
         setValidated(true);
+        generateParticles(); // ← Llamada a generar partículas al validarse
         setShowSuccessAnimation(true);
         setTimeout(() => setShowSuccessAnimation(false), 3000); // Mostrar animación por 3 segundos
         return;
