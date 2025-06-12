@@ -118,9 +118,6 @@ export default function AgeOfEmpiresCaptcha() {
 
         setImages(loaded);
         setAssetsLoaded(true);
-      } catch (error) { // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        setMessages(prev => [...prev, 'Error al cargar los assets. Revisa los nombres de archivo y la carpeta `public`.']);
-        setAssetsLoaded(false);
       }
     };
 
