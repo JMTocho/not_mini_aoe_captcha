@@ -253,8 +253,11 @@ export default function AgeOfEmpiresCaptcha() {
                 setVillager(prev => prev ? { ...prev, resourceCarrying: null } : null);
               } else {
                 setMessages(['Aldeano inactivo en el TC.']);
-              }
-            } else if (villager.resourceCarrying && targetElement.type !== 'town_center') {
+              } } else if (
+  villager.resourceCarrying &&
+  (targetElement as GameObject).type !== 'town_center'
+) {
+
                 setMessages(['¡Regresa al TC para entregar el recurso!']);
             } else {
                 setMessages(['Aldeano inactivo.']);
